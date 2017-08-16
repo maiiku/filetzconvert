@@ -63,9 +63,9 @@ def run(data):
             date_str = match[1]
             file_ext = match[2]
             try:
-                from_dt = datetime.datetime.strptime(
-                    date_str, data['pattern']
-                ).replace(tzinfo=data['from_tz'])
+                from_dt = data['from_tz'].localize(
+                    datetime.datetime.strptime(date_str, data['pattern'])
+                )
             except ValueError:
                 continue
             to_dt = from_dt.astimezone(data['to_tz'])
@@ -89,7 +89,7 @@ def run(data):
         msgs.append('{} --> {}'.format(src, dst))
         if not data['dry']:
             shutil.copy2(src, dst)
-            if data['mode'] == 'move':
+            if data['mode'] == 'move' and data['from_tz'] != data['to_tz']:
                 os.remove(src)
 
     return msgs    
